@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+/* Sun & Waves theme: whitewash walls, sun-faded signage, espresso */
+@theme {
+  --color-whitewash: #f7f3ea;
+  --color-card: #fffdf8;
+  --color-sand: #efe7da;
+  --color-line: #e2d8c8;
+  --color-sun: #a8391f;
+  --color-sun-dark: #7e2a16;
+  --color-golden: #e9a65a;
+  --color-sage: #9db39a;
+  --color-espresso: #2b211b;
+  --color-espresso-soft: #4a3b31;
+  --color-muted: #5a4a3f;
+
+  --font-display: "Bowlby One", sans-serif;
+  --font-script: "Yellowtail", cursive;
+  --font-sign: "Fraunces", serif;
+  --font-sans: "DM Sans", system-ui, sans-serif;
+}
+
+body {
+  background-color: var(--color-whitewash);
+  color: var(--color-espresso);
+  font-family: var(--font-sans);
+}
+
+/* Steam rising off a cup while the API wakes up */
+@keyframes steam {
+  0% { transform: translateY(4px); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateY(-8px); opacity: 0; }
+}
+
+.steam {
+  animation: steam 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .steam { animation: none; }
+}

@@ -2,7 +2,7 @@
 
 **Every job application I'm tracking, in one place.**
 
-I built this to track my own job search — companies, roles, statuses, links, and notes — instead of losing applications across spreadsheets and browser tabs. It's also how I'm learning C#/.NET, SQL, and testing for real. Right now it's a REST API backed by Postgres; next up is a coffee-shop-themed frontend I can use every day (I do most of my applying from coffee shops, so it felt right ☕).
+I built this to track my own job search — companies, roles, statuses, links, and notes — instead of losing applications across spreadsheets and browser tabs. It's also how I'm learning C#/.NET, SQL, and testing for real. It's a REST API backed by Postgres plus a website styled like a San Clemente surf coffee shop — my hometown, and I do most of my applying from coffee shops, so it felt right ☕🌊
 
 <p>
   <img alt="CI" src="https://github.com/kaitym/job-application-tracker/actions/workflows/ci.yml/badge.svg">
@@ -74,8 +74,8 @@ Levels start at 100 XP and go up to level 10 at 5,000 XP. Each level will unlock
 | Data | PostgreSQL 17 + Entity Framework Core (migrations) |
 | Local dev | Docker Compose (Postgres runs in a container) |
 | Tests | xUnit + Testcontainers (tests run against a real, throwaway Postgres) |
-| Frontend | React + TypeScript, coffee shop theme (planned) |
-| CI | GitHub Actions (runs every test on every push) |
+| Frontend | React + TypeScript + Tailwind (Vite), San Clemente surf coffee shop theme |
+| CI | GitHub Actions (runs every API test and builds the website on every push) |
 | Deploy | Render + Neon Postgres + Vercel, all free tiers (planned) |
 
 ## Architecture
@@ -108,6 +108,7 @@ Levels start at 100 XP and go up to level 10 at 5,000 XP. Each level will unlock
 
 ```
 JobTrackerApi/
+  web/                          the website (React + TypeScript), see web/README.md
   docker-compose.yml            local Postgres
   .github/workflows/ci.yml      runs the tests on every push
   src/JobTrackerApi/
@@ -182,6 +183,18 @@ curl -X POST http://localhost:5181/auth/login -H "Content-Type: application/json
 
 Send the token as `Authorization: Bearer <token>` on every 🔒 request. `JobTrackerApi.http` has examples for all of them — paste the token into `@token` at the top.
 
+### The website
+
+In a second terminal:
+
+```sh
+cd web
+npm install
+npm run dev
+```
+
+Then open http://localhost:5173 and log in. The site talks to the API through Vite's dev proxy, so the API needs to be running too.
+
 ### Passwords and secrets
 
 - **Local dev** uses the throwaway login in `appsettings.Development.json`. To use your own password locally without committing it:
@@ -203,6 +216,6 @@ dotnet test
 
 ## Status
 
-In progress. What's built: a full CRUD API split into endpoints and a service layer, status history, interviews, search and filters, gone-cold detection, stats with XP and levels, owner-only login with JWT tokens, Postgres storage with EF Core migrations, Docker Compose for local dev, integration tests against real Postgres, and GitHub Actions CI. What's next: the coffee shop frontend and a free deploy.
+In progress. What's built: a full CRUD API split into endpoints and a service layer, status history, interviews, search and filters, gone-cold detection, stats with XP and levels, owner-only login with JWT tokens, Postgres storage with EF Core migrations, Docker Compose for local dev, integration tests against real Postgres, and GitHub Actions CI. The website has a login screen and a dashboard (shop level, stats, and job cards with the coffee pipeline). What's next: adding and editing jobs from the website, filters, custom coffee-shop icons, and a free deploy.
 
 Known limitation: it's built for one person (me), so there's a single owner login rather than user accounts. That's on purpose — it's my tracker.

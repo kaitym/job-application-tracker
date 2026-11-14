@@ -2,12 +2,11 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace JobTrackerApi.Tests;
 
 // Tests for the /jobs endpoints
-public class JobsEndpointTests : IClassFixture<WebApplicationFactory<Program>>
+public class JobsEndpointTests : IClassFixture<ApiFactory>
 {
     private readonly HttpClient _client;
 
@@ -17,7 +16,7 @@ public class JobsEndpointTests : IClassFixture<WebApplicationFactory<Program>>
         Converters = { new JsonStringEnumConverter() }
     };
 
-    public JobsEndpointTests(WebApplicationFactory<Program> factory)
+    public JobsEndpointTests(ApiFactory factory)
     {
         _client = factory.CreateClient();
     }

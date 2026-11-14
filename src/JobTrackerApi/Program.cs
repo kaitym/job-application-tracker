@@ -1,8 +1,6 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
-var jobs = new List<Job>();
-var nextId = 1;
 
 
 // Add services to the container.
@@ -27,10 +25,11 @@ if (app.Environment.IsDevelopment())
 }
 
 // List all jobs
-app.MapGet("/jobs", () => jobs);
+app.MapGet("/jobs", async (AppDbContext db) =>
+    await db.Jobs.OrderBy(j => j.Id).ToListAsync());
 
 // Add a job
-app.MapPost("/jobs", (CreateJobRequest request) =>
+app.MapPost("/jobs", async (CreateJobRequest request, AppDbContext db) =>
 {
     if (string.IsNullOrWhiteSpace(request.Company) || string.IsNullOrWhiteSpace(request.Role))
     {
@@ -38,7 +37,7 @@ app.MapPost("/jobs", (CreateJobRequest request) =>
     }
 
     var job = new Job(
-        nextId++,
+        0,
         request.Company,
         request.Role,
         request.Location,
@@ -48,22 +47,23 @@ app.MapPost("/jobs", (CreateJobRequest request) =>
         request.Notes
     );
 
-    jobs.Add(job);
+    db.Jobs.Add(job);
+    await db.SaveChangesAsync();
     return Results.Created($"/jobs/{job.Id}", job);
 });
 
 // Get one job
-app.MapGet("/jobs/{id}", (int id) =>
+app.MapGet("/jobs/{id}", async (int id, AppDbContext db) =>
 {
-    var job = jobs.FirstOrDefault(j => j.Id == id);
+    var job = await db.Jobs.FindAsync(id);
     return job is null ? Results.NotFound() : Results.Ok(job);
 });
 
 // Update a job
-app.MapPut("/jobs/{id}", (int id, UpdateJobRequest request) =>
+app.MapPut("/jobs/{id}", async (int id, UpdateJobRequest request, AppDbContext db) =>
 {
-    var index = jobs.FindIndex(j => j.Id == id);
-    if (index == -1)
+    var existing = await db.Jobs.FindAsync(id);
+    if (existing is null)
     {
         return Results.NotFound();
     }
@@ -73,7 +73,7 @@ app.MapPut("/jobs/{id}", (int id, UpdateJobRequest request) =>
         return Results.BadRequest("Company and Role are required.");
     }
 
-    var updated = jobs[index] with
+    var updated = existing with
     {
         Company = request.Company,
         Role = request.Role,
@@ -84,14 +84,15 @@ app.MapPut("/jobs/{id}", (int id, UpdateJobRequest request) =>
         Notes = request.Notes
     };
 
-    jobs[index] = updated;
+    db.Entry(existing).CurrentValues.SetValues(updated);
+    await db.SaveChangesAsync();
     return Results.Ok(updated);
 });
 
 // Delete a job
-app.MapDelete("/jobs/{id}", (int id) =>
+app.MapDelete("/jobs/{id}", async (int id, AppDbContext db) =>
 {
-    var removed = jobs.RemoveAll(j => j.Id == id);
+    var removed = await db.Jobs.Where(j => j.Id == id).ExecuteDeleteAsync();
     return removed == 0 ? Results.NotFound() : Results.NoContent();
 });
 

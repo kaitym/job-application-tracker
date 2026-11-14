@@ -9,8 +9,7 @@ namespace JobTrackerApi.Tests;
 // Starts the API against a throwaway Postgres in Docker
 public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _db = new PostgreSqlBuilder()
-        .WithImage("postgres:17")
+    private readonly PostgreSqlContainer _db = new PostgreSqlBuilder("postgres:17")
         .Build();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)

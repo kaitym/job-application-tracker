@@ -1,6 +1,39 @@
 @JobTrackerApi_HostAddress = http://localhost:5181
 
+### List all jobs
 GET {{JobTrackerApi_HostAddress}}/jobs
 Accept: application/json
+
+### Add a job
+POST {{JobTrackerApi_HostAddress}}/jobs
+Content-Type: application/json
+
+{
+  "company": "Toshiba",
+  "role": "Software Engineer",
+  "location": "Irvine, CA",
+  "status": "Applied",
+  "dateApplied": "2026-11-10"
+}
+
+### Get one job
+GET {{JobTrackerApi_HostAddress}}/jobs/1
+Accept: application/json
+
+### Update a job
+PUT {{JobTrackerApi_HostAddress}}/jobs/1
+Content-Type: application/json
+
+{
+  "company": "Toshiba",
+  "role": "Software Engineer",
+  "location": "Irvine, CA",
+  "status": "Interviewing",
+  "dateApplied": "2026-11-10",
+  "notes": "Phone screen Friday"
+}
+
+### Delete a job
+DELETE {{JobTrackerApi_HostAddress}}/jobs/1
 
 ###

@@ -18,3 +18,6 @@ if (app.Environment.IsDevelopment())
 app.MapGet ("/jobs", () => jobs);
 
 app.Run();
+
+// Lets the test project see Program
+public partial class Program { }

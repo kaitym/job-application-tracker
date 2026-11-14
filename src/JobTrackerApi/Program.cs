@@ -14,6 +14,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // App logic, one per request
 builder.Services.AddScoped<JobService>();
 builder.Services.AddScoped<InterviewService>();
+builder.Services.AddScoped<StatsService>();
 
 // Show enums as text in JSON
 builder.Services.ConfigureHttpJsonOptions(options =>
@@ -30,6 +31,7 @@ if (app.Environment.IsDevelopment())
 // Routes
 app.MapJobEndpoints();
 app.MapInterviewEndpoints();
+app.MapStatsEndpoints();
 
 app.Run();
 

@@ -12,7 +12,7 @@ public class InterviewEndpointsTests : IClassFixture<ApiFactory>
 
     public InterviewEndpointsTests(ApiFactory factory)
     {
-        _client = factory.CreateClient();
+        _client = factory.CreateOwnerClient();
     }
 
     [Fact]

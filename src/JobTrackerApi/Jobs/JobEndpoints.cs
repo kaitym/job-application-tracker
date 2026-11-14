@@ -3,7 +3,8 @@ public static class JobEndpoints
 {
     public static void MapJobEndpoints(this WebApplication app)
     {
-        var jobs = app.MapGroup("/jobs");
+        // Owner only
+        var jobs = app.MapGroup("/jobs").RequireAuthorization();
 
         // List jobs, with optional filters
         jobs.MapGet("", async (JobStatus? status, string? search, bool? needsAction, JobService service) =>

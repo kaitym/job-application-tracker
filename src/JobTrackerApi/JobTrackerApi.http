@@ -1,11 +1,24 @@
 @JobTrackerApi_HostAddress = http://localhost:5181
+# Paste the token from "Log in" here
+@token = paste-token-here
+
+### Log in (dev password is "dev-password")
+POST {{JobTrackerApi_HostAddress}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "kaity",
+  "password": "dev-password"
+}
 
 ### List all jobs
 GET {{JobTrackerApi_HostAddress}}/jobs
+Authorization: Bearer {{token}}
 Accept: application/json
 
 ### Add a job
 POST {{JobTrackerApi_HostAddress}}/jobs
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -19,10 +32,12 @@ Content-Type: application/json
 
 ### Get one job
 GET {{JobTrackerApi_HostAddress}}/jobs/1
+Authorization: Bearer {{token}}
 Accept: application/json
 
 ### Update a job
 PUT {{JobTrackerApi_HostAddress}}/jobs/1
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -37,25 +52,31 @@ Content-Type: application/json
 
 ### Delete a job
 DELETE {{JobTrackerApi_HostAddress}}/jobs/1
+Authorization: Bearer {{token}}
 
 ### Filter and search jobs
 GET {{JobTrackerApi_HostAddress}}/jobs?status=Applied&search=irvine
+Authorization: Bearer {{token}}
 Accept: application/json
 
 ### Jobs where they responded (Order up!)
 GET {{JobTrackerApi_HostAddress}}/jobs?needsAction=true
+Authorization: Bearer {{token}}
 Accept: application/json
 
 ### A job's status history
 GET {{JobTrackerApi_HostAddress}}/jobs/1/history
+Authorization: Bearer {{token}}
 Accept: application/json
 
 ### Applied jobs with no news in 30 days
 GET {{JobTrackerApi_HostAddress}}/jobs/gone-cold?days=30
+Authorization: Bearer {{token}}
 Accept: application/json
 
 ### Schedule an interview
 POST {{JobTrackerApi_HostAddress}}/jobs/1/interviews
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -66,10 +87,12 @@ Content-Type: application/json
 
 ### A job's interviews
 GET {{JobTrackerApi_HostAddress}}/jobs/1/interviews
+Authorization: Bearer {{token}}
 Accept: application/json
 
 ### Interviews in the next 14 days
 GET {{JobTrackerApi_HostAddress}}/interviews/upcoming?days=14
+Authorization: Bearer {{token}}
 Accept: application/json
 
 ### Stats, XP, and shop level

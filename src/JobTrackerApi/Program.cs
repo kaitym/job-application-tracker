@@ -1,6 +1,13 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
+// `dotnet run -- hash-password` makes a password hash instead of starting the API
+if (args is ["hash-password"])
+{
+    HashPasswordCommand.Run();
+    return;
+}
+
 var builder = WebApplication.CreateBuilder(args);
 
 // API docs
@@ -10,6 +17,9 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default"))
            .UseSnakeCaseNamingConvention());
+
+// Owner login (only I can see and edit jobs)
+builder.AddOwnerAuth();
 
 // App logic, one per request
 builder.Services.AddScoped<JobService>();
@@ -28,7 +38,13 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+// Check tokens, then limit login attempts
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseRateLimiter();
+
 // Routes
+app.MapAuthEndpoints();
 app.MapJobEndpoints();
 app.MapInterviewEndpoints();
 app.MapStatsEndpoints();

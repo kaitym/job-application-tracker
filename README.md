@@ -26,24 +26,28 @@ I built this to track my own job search — companies, roles, statuses, links, a
 | **Interviews** | Schedule interviews per job and see everything coming up across all jobs. |
 | **Search + filters** | Filter by status or "needs action", and search company, role, or location. |
 | **Stats + levels** | Response rate, counts per stage, and XP that levels up my (future) coffee shop ☕ |
+| **Private by default** | Only I can see or change jobs (login with a signed token). `/stats` is public — just numbers, no company names. |
 | **Survives restarts** | Everything is stored in Postgres, not in memory. |
 
 ### Endpoints
 
+🔒 = needs a login token (`Authorization: Bearer <token>`).
+
 | Method | Route | What it does |
 |---|---|---|
-| `GET` | `/jobs` | List jobs — optional `?status=Applied`, `?needsAction=true`, `?search=irvine` |
-| `POST` | `/jobs` | Add a job (returns `201` + where to find it) |
-| `GET` | `/jobs/{id}` | Get one job (`404` if it doesn't exist) |
-| `PUT` | `/jobs/{id}` | Update a job (status changes get added to its history) |
-| `DELETE` | `/jobs/{id}` | Delete a job and its history/interviews (`204`) |
-| `GET` | `/jobs/{id}/history` | Every status change for a job |
-| `GET` | `/jobs/gone-cold` | Applied jobs with no news in `?days=30` |
-| `GET` | `/jobs/{id}/interviews` | A job's interviews, soonest first |
-| `POST` | `/jobs/{id}/interviews` | Schedule an interview |
-| `DELETE` | `/jobs/{id}/interviews/{interviewId}` | Cancel an interview |
-| `GET` | `/interviews/upcoming` | Interviews in the next `?days=14`, with company and role |
-| `GET` | `/stats` | Counts per stage, response rate, XP, and shop level |
+| `POST` | `/auth/login` | Log in, get a token (limited to 5 tries a minute) |
+| `GET` | `/jobs` 🔒 | List jobs — optional `?status=Applied`, `?needsAction=true`, `?search=irvine` |
+| `POST` | `/jobs` 🔒 | Add a job (returns `201` + where to find it) |
+| `GET` | `/jobs/{id}` 🔒 | Get one job (`404` if it doesn't exist) |
+| `PUT` | `/jobs/{id}` 🔒 | Update a job (status changes get added to its history) |
+| `DELETE` | `/jobs/{id}` 🔒 | Delete a job and its history/interviews (`204`) |
+| `GET` | `/jobs/{id}/history` 🔒 | Every status change for a job |
+| `GET` | `/jobs/gone-cold` 🔒 | Applied jobs with no news in `?days=30` |
+| `GET` | `/jobs/{id}/interviews` 🔒 | A job's interviews, soonest first |
+| `POST` | `/jobs/{id}/interviews` 🔒 | Schedule an interview |
+| `DELETE` | `/jobs/{id}/interviews/{interviewId}` 🔒 | Cancel an interview |
+| `GET` | `/interviews/upcoming` 🔒 | Interviews in the next `?days=14`, with company and role |
+| `GET` | `/stats` | Counts per stage, response rate, XP, and shop level (public) |
 
 Company and role are required — the API returns `400` if either is blank. Example requests for all of these are in [`JobTrackerApi.http`](src/JobTrackerApi/JobTrackerApi.http).
 
@@ -124,6 +128,12 @@ JobTrackerApi/
       Leveling.cs               XP and level rules
       StatsEndpoints.cs         /stats route
       StatsService.cs           counts, response rate, XP
+    Auth/
+      AuthSetup.cs              token checks and login rate limit
+      AuthEndpoints.cs          /auth/login
+      TokenService.cs           checks the password, signs tokens
+      Passwords.cs              password hashing
+      HashPasswordCommand.cs    `dotnet run -- hash-password`
     Data/
       AppDbContext.cs           database tables and column rules
       DbTime.cs                 UTC timestamps Postgres can store exactly
@@ -134,6 +144,8 @@ JobTrackerApi/
     InterviewEndpointsTests.cs  interview tests
     StatsEndpointsTests.cs      stats and XP tests
     LevelingTests.cs            unit tests for leveling (no database)
+    AuthTests.cs                who can see what, login, forged tokens
+    LoginRateLimitTests.cs      too many login tries get blocked
 ```
 
 ## Getting started
@@ -162,7 +174,24 @@ Run the API:
 dotnet run --project src/JobTrackerApi
 ```
 
-Then open http://localhost:5181/jobs — you'll see `[]` until you add a job (try the `POST` in `JobTrackerApi.http`).
+Then log in to get a token. Locally the username is `kaity` and the password is `dev-password` (dev only — see below):
+
+```sh
+curl -X POST http://localhost:5181/auth/login -H "Content-Type: application/json" -d '{"username":"kaity","password":"dev-password"}'
+```
+
+Send the token as `Authorization: Bearer <token>` on every 🔒 request. `JobTrackerApi.http` has examples for all of them — paste the token into `@token` at the top.
+
+### Passwords and secrets
+
+- **Local dev** uses the throwaway login in `appsettings.Development.json`. To use your own password locally without committing it:
+
+  ```sh
+  dotnet run --project src/JobTrackerApi -- hash-password
+  dotnet user-secrets set "Auth:PasswordHash" "<the hash>" --project src/JobTrackerApi
+  ```
+
+- **Production** needs `Auth__Username`, `Auth__PasswordHash`, and `Auth__JwtKey` (32+ random characters) set as environment variables. The app refuses to start without them, so it can never go live with the dev password.
 
 ## Testing
 
@@ -170,10 +199,10 @@ Then open http://localhost:5181/jobs — you'll see `[]` until you add a job (tr
 dotnet test
 ```
 
-42 tests: integration tests for every endpoint (the happy path, the "doesn't exist" case `404`, and validation `400`), plus unit tests for the leveling rules. Docker needs to be running, since each test run starts its own Postgres container with Testcontainers. GitHub Actions runs the same tests on every push — that's the CI badge at the top.
+55 tests: integration tests for every endpoint (the happy path, the "doesn't exist" case `404`, validation `400`, and login `401`/`429`), plus unit tests for the leveling rules. Docker needs to be running, since each test run starts its own Postgres container with Testcontainers. GitHub Actions runs the same tests on every push — that's the CI badge at the top.
 
 ## Status
 
-In progress. What's built: a full CRUD API split into endpoints and a service layer, status history, interviews, search and filters, gone-cold detection, stats with XP and levels, Postgres storage with EF Core migrations, Docker Compose for local dev, integration tests against real Postgres, and GitHub Actions CI. What's next: login (so only I can edit), the coffee shop frontend, and a free deploy.
+In progress. What's built: a full CRUD API split into endpoints and a service layer, status history, interviews, search and filters, gone-cold detection, stats with XP and levels, owner-only login with JWT tokens, Postgres storage with EF Core migrations, Docker Compose for local dev, integration tests against real Postgres, and GitHub Actions CI. What's next: the coffee shop frontend and a free deploy.
 
-Known limitation: there's no auth yet, so anyone who can reach the API can edit it. That's fine while it only runs on my laptop, and it gets fixed before anything goes live.
+Known limitation: it's built for one person (me), so there's a single owner login rather than user accounts. That's on purpose — it's my tracker.

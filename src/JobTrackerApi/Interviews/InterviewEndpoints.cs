@@ -3,7 +3,8 @@ public static class InterviewEndpoints
 {
     public static void MapInterviewEndpoints(this WebApplication app)
     {
-        var jobInterviews = app.MapGroup("/jobs/{jobId:int}/interviews");
+        // Owner only
+        var jobInterviews = app.MapGroup("/jobs/{jobId:int}/interviews").RequireAuthorization();
 
         // A job's interviews
         jobInterviews.MapGet("", async (int jobId, InterviewService service) =>
@@ -43,6 +44,7 @@ public static class InterviewEndpoints
             }
 
             return Results.Ok(await service.GetUpcomingAsync(window));
-        });
+        })
+        .RequireAuthorization();
     }
 }

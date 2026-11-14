@@ -11,7 +11,7 @@ public class StatsEndpointsTests : IClassFixture<ApiFactory>
 
     public StatsEndpointsTests(ApiFactory factory)
     {
-        _client = factory.CreateClient();
+        _client = factory.CreateOwnerClient();
     }
 
     [Fact]

@@ -18,7 +18,7 @@ public class JobsEndpointTests : IClassFixture<ApiFactory>
     public JobsEndpointTests(ApiFactory factory)
     {
         _factory = factory;
-        _client = factory.CreateClient();
+        _client = factory.CreateOwnerClient();
     }
 
     [Fact]

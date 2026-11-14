@@ -13,7 +13,8 @@ Content-Type: application/json
   "role": "Software Engineer",
   "location": "Irvine, CA",
   "status": "Applied",
-  "dateApplied": "2026-11-10"
+  "dateApplied": "2026-11-10",
+  "deadline": "2026-12-01"
 }
 
 ### Get one job
@@ -30,10 +31,49 @@ Content-Type: application/json
   "location": "Irvine, CA",
   "status": "Interviewing",
   "dateApplied": "2026-11-10",
-  "notes": "Phone screen Friday"
+  "notes": "Phone screen Friday",
+  "needsAction": true
 }
 
 ### Delete a job
 DELETE {{JobTrackerApi_HostAddress}}/jobs/1
+
+### Filter and search jobs
+GET {{JobTrackerApi_HostAddress}}/jobs?status=Applied&search=irvine
+Accept: application/json
+
+### Jobs where they responded (Order up!)
+GET {{JobTrackerApi_HostAddress}}/jobs?needsAction=true
+Accept: application/json
+
+### A job's status history
+GET {{JobTrackerApi_HostAddress}}/jobs/1/history
+Accept: application/json
+
+### Applied jobs with no news in 30 days
+GET {{JobTrackerApi_HostAddress}}/jobs/gone-cold?days=30
+Accept: application/json
+
+### Schedule an interview
+POST {{JobTrackerApi_HostAddress}}/jobs/1/interviews
+Content-Type: application/json
+
+{
+  "scheduledAt": "2026-12-02T10:00:00-08:00",
+  "kind": "Phone screen",
+  "notes": "Bring questions about the team"
+}
+
+### A job's interviews
+GET {{JobTrackerApi_HostAddress}}/jobs/1/interviews
+Accept: application/json
+
+### Interviews in the next 14 days
+GET {{JobTrackerApi_HostAddress}}/interviews/upcoming?days=14
+Accept: application/json
+
+### Stats, XP, and shop level
+GET {{JobTrackerApi_HostAddress}}/stats
+Accept: application/json
 
 ###

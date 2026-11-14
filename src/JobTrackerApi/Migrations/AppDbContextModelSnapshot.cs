@@ -40,6 +40,10 @@ namespace JobTrackerApi.Migrations
                         .HasColumnType("date")
                         .HasColumnName("date_applied");
 
+                    b.Property<DateOnly?>("Deadline")
+                        .HasColumnType("date")
+                        .HasColumnName("deadline");
+
                     b.Property<string>("Link")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
@@ -51,9 +55,17 @@ namespace JobTrackerApi.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("location");
 
+                    b.Property<bool>("NeedsAction")
+                        .HasColumnType("boolean")
+                        .HasColumnName("needs_action");
+
                     b.Property<string>("Notes")
                         .HasColumnType("text")
                         .HasColumnName("notes");
+
+                    b.Property<DateTime?>("RespondedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("responded_at");
 
                     b.Property<string>("Role")
                         .IsRequired()
@@ -71,6 +83,53 @@ namespace JobTrackerApi.Migrations
                         .HasName("pk_jobs");
 
                     b.ToTable("jobs", (string)null);
+                });
+
+            modelBuilder.Entity("JobStatusChange", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ChangedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("changed_at");
+
+                    b.Property<string>("FromStatus")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("from_status");
+
+                    b.Property<int>("JobId")
+                        .HasColumnType("integer")
+                        .HasColumnName("job_id");
+
+                    b.Property<string>("ToStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("to_status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_job_status_changes");
+
+                    b.HasIndex("JobId")
+                        .HasDatabaseName("ix_job_status_changes_job_id");
+
+                    b.ToTable("job_status_changes", (string)null);
+                });
+
+            modelBuilder.Entity("JobStatusChange", b =>
+                {
+                    b.HasOne("Job", null)
+                        .WithMany()
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_job_status_changes_jobs_job_id");
                 });
 #pragma warning restore 612, 618
         }

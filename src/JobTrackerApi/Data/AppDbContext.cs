@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
     public DbSet<Job> Jobs => Set<Job>();
+    public DbSet<JobStatusChange> JobStatusChanges => Set<JobStatusChange>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -15,6 +16,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             job.Property(j => j.Location).HasMaxLength(200);
             job.Property(j => j.Status).HasConversion<string>().HasMaxLength(20);
             job.Property(j => j.Link).HasMaxLength(500);
+        });
+
+        // Status history, deleted along with its job
+        modelBuilder.Entity<JobStatusChange>(change =>
+        {
+            change.Property(c => c.FromStatus).HasConversion<string>().HasMaxLength(20);
+            change.Property(c => c.ToStatus).HasConversion<string>().HasMaxLength(20);
+            change.HasOne<Job>()
+                  .WithMany()
+                  .HasForeignKey(c => c.JobId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

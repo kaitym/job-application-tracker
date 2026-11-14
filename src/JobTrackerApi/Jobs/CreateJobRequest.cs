@@ -7,5 +7,7 @@ public record CreateJobRequest(
     JobStatus Status,
     DateOnly? DateApplied,
     string? Link,
-    string? Notes
+    string? Notes,
+    DateOnly? Deadline = null,
+    bool NeedsAction = false
 );

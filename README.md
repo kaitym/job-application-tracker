@@ -5,6 +5,7 @@
 I built this to track my own job search — companies, roles, statuses, links, and notes — instead of losing applications across spreadsheets and browser tabs. It's also how I'm learning C#/.NET, SQL, and testing for real. Right now it's a REST API backed by Postgres; next up is a coffee-shop-themed frontend I can use every day (I do most of my applying from coffee shops, so it felt right ☕).
 
 <p>
+  <img alt="CI" src="https://github.com/kaitym/job-application-tracker/actions/workflows/ci.yml/badge.svg">
   <img alt="C#" src="https://img.shields.io/badge/C%23-239120?logo=csharp&logoColor=white">
   <img alt=".NET" src="https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet&logoColor=white">
   <img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL-17-4169E1?logo=postgresql&logoColor=white">
@@ -42,7 +43,7 @@ Company and role are required — the API returns `400` if either is blank. Exam
 | Local dev | Docker Compose (Postgres runs in a container) |
 | Tests | xUnit + Testcontainers (tests run against a real, throwaway Postgres) |
 | Frontend | React + TypeScript, coffee shop theme (planned) |
-| CI | GitHub Actions (planned) |
+| CI | GitHub Actions (runs every test on every push) |
 | Deploy | Render + Neon Postgres + Vercel, all free tiers (planned) |
 
 ## Architecture
@@ -127,10 +128,10 @@ Then open http://localhost:5181/jobs — you'll see `[]` until you add a job (tr
 dotnet test
 ```
 
-11 tests covering every endpoint — the happy path, the "doesn't exist" case (`404`), and validation (`400`). Docker needs to be running, since each test run starts its own Postgres container with Testcontainers.
+11 tests covering every endpoint — the happy path, the "doesn't exist" case (`404`), and validation (`400`). Docker needs to be running, since each test run starts its own Postgres container with Testcontainers. GitHub Actions runs the same tests on every push — that's the CI badge at the top.
 
 ## Status
 
-In progress. What's built: a full CRUD API split into endpoints and a service layer, Postgres storage with EF Core migrations, Docker Compose for local dev, and integration tests against real Postgres. What's next: GitHub Actions CI, filtering and stats, login (so only I can edit), the coffee shop frontend, and a free deploy.
+In progress. What's built: a full CRUD API split into endpoints and a service layer, Postgres storage with EF Core migrations, Docker Compose for local dev, integration tests against real Postgres, and GitHub Actions CI. What's next: filtering and stats, login (so only I can edit), the coffee shop frontend, and a free deploy.
 
 Known limitation: there's no auth yet, so anyone who can reach the API can edit it. That's fine while it only runs on my laptop, and it gets fixed before anything goes live.

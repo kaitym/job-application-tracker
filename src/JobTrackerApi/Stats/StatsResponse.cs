@@ -7,7 +7,10 @@ public record StatsResponse(
     double ResponseRate, // responses / applications
     int NeedsAction,
     int UpcomingInterviews,
-    int Xp,
+    int Xp, // all XP earned so far
+    int CollectedXp, // XP I've collected (sets the level)
+    int PendingXp, // earned but not collected yet
     int Level,
+    int LevelStartXp, // XP where this level began
     int? NextLevelXp // null at max level
 );

@@ -46,6 +46,8 @@ public class StatsService(AppDbContext db)
         var xp = reached.Sum(r => Leveling.XpForReaching(r.ToStatus))
                  + responses * Leveling.ResponseXp;
 
+        // Level only goes up when XP is collected
+        var collected = await GetCollectedXpAsync();
         var now = DbTime.UtcNow();
 
         return new StatsResponse(
@@ -57,8 +59,40 @@ public class StatsService(AppDbContext db)
             NeedsAction: await db.Jobs.CountAsync(j => j.NeedsAction),
             UpcomingInterviews: await db.Interviews.CountAsync(i => i.ScheduledAt >= now),
             Xp: xp,
-            Level: Leveling.LevelFor(xp),
-            NextLevelXp: Leveling.XpForNextLevel(xp)
+            CollectedXp: collected,
+            PendingXp: Math.Max(0, xp - collected),
+            Level: Leveling.LevelFor(collected),
+            LevelStartXp: Leveling.LevelThresholds[Leveling.LevelFor(collected) - 1],
+            NextLevelXp: Leveling.XpForNextLevel(collected)
         );
+    }
+
+    // Move all earned XP into the shop
+    public async Task<CollectResponse> CollectAsync()
+    {
+        var before = await GetAsync();
+
+        var progress = await db.ShopProgress.FindAsync(1);
+        var collected = Math.Max(before.CollectedXp, before.Xp);
+
+        if (progress is null)
+        {
+            db.ShopProgress.Add(new ShopProgress(1, collected));
+        }
+        else
+        {
+            db.Entry(progress).CurrentValues.SetValues(progress with { CollectedXp = collected });
+        }
+
+        await db.SaveChangesAsync();
+
+        var after = await GetAsync();
+        return new CollectResponse(after.CollectedXp - before.CollectedXp, before.Level, after);
+    }
+
+    private async Task<int> GetCollectedXpAsync()
+    {
+        var progress = await db.ShopProgress.AsNoTracking().FirstOrDefaultAsync(p => p.Id == 1);
+        return progress?.CollectedXp ?? 0;
     }
 }

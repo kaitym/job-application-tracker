@@ -8,5 +8,6 @@ public record UpdateJobRequest(
     string? Link,
     string? Notes,
     DateOnly? Deadline = null,
-    bool NeedsAction = false
+    bool NeedsAction = false,
+    string? Description = null
 );

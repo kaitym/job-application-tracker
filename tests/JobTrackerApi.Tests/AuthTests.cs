@@ -42,6 +42,16 @@ public class AuthTests : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
+    [Theory]
+    [InlineData("/stats/collect")]
+    [InlineData("/jobs/preview-link")]
+    public async Task PrivatePosts_WithoutToken_ReturnUnauthorized(string route)
+    {
+        var response = await _factory.CreateClient().PostAsJsonAsync(route, new { url = "https://example.com" });
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
     [Fact]
     public async Task GetStats_WithoutToken_IsPublic()
     {

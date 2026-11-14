@@ -48,6 +48,15 @@ export function JobCard({ job }: { job: Job }) {
       )}
 
       {job.notes && <p className="text-sm text-muted">{job.notes}</p>}
+
+      {job.description && (
+        <details className="group rounded-2xl bg-whitewash px-4 py-3">
+          <summary className="cursor-pointer font-sign text-xs font-bold uppercase tracking-[0.2em] text-muted group-open:text-espresso">
+            Job description
+          </summary>
+          <p className="mt-3 text-sm whitespace-pre-line text-muted">{job.description}</p>
+        </details>
+      )}
     </article>
   )
 }

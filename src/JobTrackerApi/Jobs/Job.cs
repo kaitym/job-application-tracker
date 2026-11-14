@@ -10,5 +10,6 @@ public record Job(
     string? Notes,
     DateOnly? Deadline, // last day to apply
     bool NeedsAction, // they responded, my move ("Order up!")
-    DateTime? RespondedAt // first time they responded, set by the API
+    DateTime? RespondedAt, // first time they responded, set by the API
+    string? Description = null // the posting's description
     );

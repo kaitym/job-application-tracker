@@ -39,7 +39,7 @@ public class StatsEndpointsTests : IClassFixture<ApiFactory>
         Assert.Equal(1, after.ByStatus[JobStatus.Interviewing] - before.ByStatus[JobStatus.Interviewing]);
         Assert.Equal(1, after.ByStatus[JobStatus.Applied] - before.ByStatus[JobStatus.Applied]);
         Assert.Equal(1, after.ByStatus[JobStatus.Saved] - before.ByStatus[JobStatus.Saved]);
-        Assert.Equal(Leveling.LevelFor(after.Xp), after.Level);
+        Assert.Equal(Leveling.LevelFor(after.CollectedXp), after.Level);
     }
 
     [Fact]
@@ -73,6 +73,30 @@ public class StatsEndpointsTests : IClassFixture<ApiFactory>
         Assert.Equal(1, after.NeedsAction - before.NeedsAction);
         Assert.Equal(1, after.UpcomingInterviews - before.UpcomingInterviews);
         Assert.InRange(after.ResponseRate, 0, 1);
+    }
+
+    [Fact]
+    public async Task CollectXp_MovesPendingIntoCollected()
+    {
+        await CreateJobAsync("Tip Jar Co", JobStatus.Applied);
+        var before = await GetStatsAsync();
+        Assert.True(before.PendingXp > 0);
+
+        var response = await _client.PostAsync("/stats/collect", null);
+        response.EnsureSuccessStatusCode();
+        var collect = await response.Content.ReadFromJsonAsync<CollectResponse>(JsonOptions);
+
+        Assert.NotNull(collect);
+        Assert.Equal(before.PendingXp, collect.Collected);
+        Assert.Equal(before.Level, collect.PreviousLevel);
+        Assert.Equal(0, collect.Stats.PendingXp);
+        Assert.Equal(collect.Stats.Xp, collect.Stats.CollectedXp);
+        Assert.Equal(Leveling.LevelFor(collect.Stats.CollectedXp), collect.Stats.Level);
+
+        // Nothing new earned, nothing to collect
+        var again = await _client.PostAsync("/stats/collect", null);
+        var second = await again.Content.ReadFromJsonAsync<CollectResponse>(JsonOptions);
+        Assert.Equal(0, second!.Collected);
     }
 
     // Helper: read /stats

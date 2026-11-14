@@ -33,7 +33,6 @@ export function LoginScreen({ onLogin }: Props) {
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-8 px-6 py-12">
       <header className="flex flex-col gap-1">
-        <span className="font-sign text-xs font-bold uppercase tracking-[0.3em] text-muted">San Clemente, CA</span>
         <h1 className="font-display text-6xl leading-[0.9] text-sun">
           SUN &amp;
           <br />

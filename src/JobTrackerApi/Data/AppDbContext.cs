@@ -6,6 +6,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Job> Jobs => Set<Job>();
     public DbSet<JobStatusChange> JobStatusChanges => Set<JobStatusChange>();
     public DbSet<Interview> Interviews => Set<Interview>();
+    public DbSet<ShopProgress> ShopProgress => Set<ShopProgress>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -17,6 +18,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             job.Property(j => j.Location).HasMaxLength(200);
             job.Property(j => j.Status).HasConversion<string>().HasMaxLength(20);
             job.Property(j => j.Link).HasMaxLength(500);
+            job.Property(j => j.Description).HasMaxLength(10000);
         });
 
         // Status history, deleted along with its job
@@ -39,6 +41,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                      .HasForeignKey(i => i.JobId)
                      .OnDelete(DeleteBehavior.Cascade);
             interview.HasIndex(i => i.ScheduledAt);
+        });
+
+        // One row: how much XP has been collected
+        modelBuilder.Entity<ShopProgress>(progress =>
+        {
+            progress.Property(p => p.Id).ValueGeneratedNever();
         });
     }
 }

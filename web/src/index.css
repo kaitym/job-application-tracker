@@ -40,3 +40,48 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .steam { animation: none; }
 }
+
+/* Pending XP in the bar: striped, waiting to be collected */
+.tip-stripes {
+  background: repeating-linear-gradient(-45deg, #e9a65a 0 6px, #b98447 6px 12px);
+  opacity: 0.55;
+}
+
+/* Collect button nudges when there are tips waiting */
+@keyframes tip-wiggle {
+  0%, 88%, 100% { transform: rotate(0); }
+  91% { transform: rotate(-4deg); }
+  94% { transform: rotate(4deg); }
+  97% { transform: rotate(-2deg); }
+}
+
+.tip-wiggle {
+  animation: tip-wiggle 3s ease-in-out infinite;
+}
+
+/* "+40 XP" pops in */
+@keyframes tip-pop {
+  0% { transform: scale(0.6) translateY(10px); opacity: 0; }
+  60% { transform: scale(1.08) translateY(0); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+.tip-pop {
+  animation: tip-pop 0.5s ease-out both;
+}
+
+/* The shack bounces on level up */
+@keyframes level-bounce {
+  0%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-10px); }
+  60% { transform: translateY(0); }
+  80% { transform: translateY(-4px); }
+}
+
+.level-bounce {
+  animation: level-bounce 0.9s ease-out 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tip-wiggle, .tip-pop, .level-bounce { animation: none; }
+}

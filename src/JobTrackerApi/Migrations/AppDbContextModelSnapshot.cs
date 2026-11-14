@@ -82,6 +82,11 @@ namespace JobTrackerApi.Migrations
                         .HasColumnType("date")
                         .HasColumnName("deadline");
 
+                    b.Property<string>("Description")
+                        .HasMaxLength(10000)
+                        .HasColumnType("character varying(10000)")
+                        .HasColumnName("description");
+
                     b.Property<string>("Link")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
@@ -158,6 +163,22 @@ namespace JobTrackerApi.Migrations
                         .HasDatabaseName("ix_job_status_changes_job_id");
 
                     b.ToTable("job_status_changes", (string)null);
+                });
+
+            modelBuilder.Entity("ShopProgress", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    b.Property<int>("CollectedXp")
+                        .HasColumnType("integer")
+                        .HasColumnName("collected_xp");
+
+                    b.HasKey("Id")
+                        .HasName("pk_shop_progress");
+
+                    b.ToTable("shop_progress", (string)null);
                 });
 
             modelBuilder.Entity("Interview", b =>

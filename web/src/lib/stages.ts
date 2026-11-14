@@ -21,3 +21,16 @@ export function pipelineIndex(status: JobStatus): number {
 export function isEnded(status: JobStatus): boolean {
   return status === 'Rejected' || status === 'Ghosted'
 }
+
+// What each stage means, for the guide at the top
+export const stageGuide: { name: string; meaning: string; xp: string }[] = [
+  { name: 'Beans picked', meaning: 'Saved a job I want, haven’t applied yet', xp: '+5' },
+  { name: 'Brewing', meaning: 'Applied, waiting to hear back', xp: '+15' },
+  { name: 'Order up!', meaning: 'They responded, it’s my move', xp: '+25' },
+  { name: 'Taste test', meaning: 'Interviewing', xp: '+50' },
+  { name: 'Served', meaning: 'Got an offer', xp: '+200' },
+  { name: 'Spilled', meaning: 'Rejected. It happens to every barista', xp: '+5' },
+  { name: 'Gone cold', meaning: 'No reply in 30+ days (probably ghosted)', xp: '' },
+]
+
+export const statusOptions: JobStatus[] = ['Saved', 'Applied', 'Interviewing', 'Offer', 'Rejected', 'Ghosted']

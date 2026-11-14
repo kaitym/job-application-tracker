@@ -1,4 +1,4 @@
-import type { Job, LoginResponse, Stats } from './types'
+import type { CollectResponse, Job, JobLinkPreview, LoginResponse, NewJob, Stats } from './types'
 
 // Dev: Vite proxies /api to the C# API. Prod: set VITE_API_URL.
 const API_URL = import.meta.env.VITE_API_URL ?? '/api'
@@ -43,4 +43,16 @@ export function getJobs(token: string) {
 
 export function getStats() {
   return request<Stats>('/stats', null)
+}
+
+export function createJob(token: string, job: NewJob) {
+  return request<Job>('/jobs', token, { method: 'POST', body: JSON.stringify(job) })
+}
+
+export function previewLink(token: string, url: string) {
+  return request<JobLinkPreview>('/jobs/preview-link', token, { method: 'POST', body: JSON.stringify({ url }) })
+}
+
+export function collectXp(token: string) {
+  return request<CollectResponse>('/stats/collect', token, { method: 'POST' })
 }

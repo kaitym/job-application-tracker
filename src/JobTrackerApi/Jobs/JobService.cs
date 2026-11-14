@@ -53,7 +53,8 @@ public class JobService(AppDbContext db)
             request.Notes,
             request.Deadline,
             request.NeedsAction,
-            request.NeedsAction ? now : null
+            request.NeedsAction ? now : null,
+            request.Description
         );
 
         await using var transaction = await db.Database.BeginTransactionAsync();
@@ -94,7 +95,8 @@ public class JobService(AppDbContext db)
             Notes = request.Notes,
             Deadline = request.Deadline,
             NeedsAction = request.NeedsAction,
-            RespondedAt = respondedAt
+            RespondedAt = respondedAt,
+            Description = request.Description
         };
 
         db.Entry(existing).CurrentValues.SetValues(updated);

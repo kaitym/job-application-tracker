@@ -302,6 +302,33 @@ public class JobsEndpointTests : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    [Fact]
+    public async Task PostJob_WithDescription_SavesIt()
+    {
+        var request = new CreateJobRequest("Described Co", "Software Engineer", "Irvine, CA",
+            JobStatus.Saved, null, null, null, Description: "Build APIs.\n\n• C#");
+
+        var response = await _client.PostAsJsonAsync("/jobs", request, JsonOptions);
+        var job = await response.Content.ReadFromJsonAsync<Job>(JsonOptions);
+
+        Assert.Equal("Build APIs.\n\n• C#", job!.Description);
+    }
+
+    [Theory]
+    [InlineData("not a link")]
+    [InlineData("file:///etc/passwd")]
+    [InlineData("ftp://example.com/job")]
+    [InlineData("http://127.0.0.1/admin")]
+    [InlineData("http://169.254.169.254/latest/meta-data")]
+    [InlineData("http://localhost/jobs")]
+    [InlineData("https://example.com:8443/job")]
+    public async Task PreviewLink_UnsafeOrInvalidLinks_ReturnBadRequest(string url)
+    {
+        var response = await _client.PostAsJsonAsync("/jobs/preview-link", new PreviewLinkRequest(url), JsonOptions);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
     // Helper: add a job and return it
     private async Task<Job> CreateJobAsync(string company, JobStatus status = JobStatus.Applied, bool needsAction = false)
     {

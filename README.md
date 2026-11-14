@@ -25,7 +25,8 @@ I built this to track my own job search — companies, roles, statuses, links, a
 | **Gone cold** | Finds applications with no news in 30+ days, so I know what's probably a ghost. |
 | **Interviews** | Schedule interviews per job and see everything coming up across all jobs. |
 | **Search + filters** | Filter by status or "needs action", and search company, role, or location. |
-| **Stats + levels** | Response rate, counts per stage, and XP that levels up my (future) coffee shop ☕ |
+| **Paste a link** | Paste a job posting link and it fills in the company, role, location, and description (from the page's built-in job data). |
+| **Stats + levels** | Response rate, counts per stage, and XP that I collect from the tip jar to level up my coffee shop ☕ |
 | **Private by default** | Only I can see or change jobs (login with a signed token). `/stats` is public — just numbers, no company names. |
 | **Survives restarts** | Everything is stored in Postgres, not in memory. |
 
@@ -47,7 +48,9 @@ I built this to track my own job search — companies, roles, statuses, links, a
 | `POST` | `/jobs/{id}/interviews` 🔒 | Schedule an interview |
 | `DELETE` | `/jobs/{id}/interviews/{interviewId}` 🔒 | Cancel an interview |
 | `GET` | `/interviews/upcoming` 🔒 | Interviews in the next `?days=14`, with company and role |
+| `POST` | `/jobs/preview-link` 🔒 | Read a posting link and return what it found (blocks private/internal addresses) |
 | `GET` | `/stats` | Counts per stage, response rate, XP, and shop level (public) |
+| `POST` | `/stats/collect` 🔒 | Collect earned XP from the tip jar |
 
 Company and role are required — the API returns `400` if either is blank. Example requests for all of these are in [`JobTrackerApi.http`](src/JobTrackerApi/JobTrackerApi.http).
 
@@ -64,7 +67,7 @@ XP comes from real progress, and each job only earns each step once (no farming 
 | Offer | +200 |
 | Rejection | +5 (I still showed up) |
 
-Levels start at 100 XP and go up to level 10 at 5,000 XP. Each level will unlock something new in the coffee shop.
+Earned XP waits in the tip jar until I hit **Collect tips** — that's when the level goes up. Levels start at 100 XP and go up to level 10 at 5,000 XP. Each level will unlock something new in the coffee shop.
 
 ## Tech stack
 
@@ -135,6 +138,10 @@ JobTrackerApi/
       TokenService.cs           checks the password, signs tokens
       Passwords.cs              password hashing
       HashPasswordCommand.cs    `dotnet run -- hash-password`
+    LinkPreview/
+      JobPageParser.cs          reads job details out of a posting page
+      LinkPreviewService.cs     fetches the page (size and time limits)
+      SafeAddresses.cs          blocks private addresses (SSRF protection)
     Data/
       AppDbContext.cs           database tables and column rules
       DbTime.cs                 UTC timestamps Postgres can store exactly
@@ -147,6 +154,8 @@ JobTrackerApi/
     LevelingTests.cs            unit tests for leveling (no database)
     AuthTests.cs                who can see what, login, forged tokens
     LoginRateLimitTests.cs      too many login tries get blocked
+    JobPageParserTests.cs       reading posting pages (no network)
+    SafeAddressesTests.cs       private address block list
 ```
 
 ## Getting started
@@ -193,7 +202,7 @@ npm install
 npm run dev
 ```
 
-Then open http://localhost:5173 and log in. The site talks to the API through Vite's dev proxy, so the API needs to be running too.
+Then open http://localhost:5173 and log in. To load my real applications into a fresh database, run `python3 seed-jobs.py` once while the API is running. The site talks to the API through Vite's dev proxy, so the API needs to be running too.
 
 ### Passwords and secrets
 
@@ -212,10 +221,10 @@ Then open http://localhost:5173 and log in. The site talks to the API through Vi
 dotnet test
 ```
 
-55 tests: integration tests for every endpoint (the happy path, the "doesn't exist" case `404`, validation `400`, and login `401`/`429`), plus unit tests for the leveling rules. Docker needs to be running, since each test run starts its own Postgres container with Testcontainers. GitHub Actions runs the same tests on every push — that's the CI badge at the top.
+85 tests: integration tests for every endpoint (the happy path, the "doesn't exist" case `404`, validation `400`, and login `401`/`429`), plus unit tests for the leveling rules, the posting-page reader, and the private-address block list. Docker needs to be running, since each test run starts its own Postgres container with Testcontainers. GitHub Actions runs the same tests on every push — that's the CI badge at the top.
 
 ## Status
 
-In progress. What's built: a full CRUD API split into endpoints and a service layer, status history, interviews, search and filters, gone-cold detection, stats with XP and levels, owner-only login with JWT tokens, Postgres storage with EF Core migrations, Docker Compose for local dev, integration tests against real Postgres, and GitHub Actions CI. The website has a login screen and a dashboard (shop level, stats, and job cards with the coffee pipeline). What's next: adding and editing jobs from the website, filters, custom coffee-shop icons, and a free deploy.
+In progress. What's built: a full CRUD API split into endpoints and a service layer, status history, interviews, search and filters, gone-cold detection, stats with XP and levels, owner-only login with JWT tokens, Postgres storage with EF Core migrations, Docker Compose for local dev, integration tests against real Postgres, and GitHub Actions CI. The website has a login screen and a dashboard: shop level with a tip jar to collect XP, a guide to the stages, stats, job cards, and an add-job form that can fill itself in from a posting link. What's next: editing jobs from the website, filters, custom coffee-shop icons, and a free deploy.
 
 Known limitation: it's built for one person (me), so there's a single owner login rather than user accounts. That's on purpose — it's my tracker.

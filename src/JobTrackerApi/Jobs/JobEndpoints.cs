@@ -22,6 +22,17 @@ public static class JobEndpoints
             return Results.Ok(await service.GetGoneColdAsync(cutoffDays));
         });
 
+        // Read a job posting link to fill in the form
+        jobs.MapPost("/preview-link", async (PreviewLinkRequest request, LinkPreviewService previews, CancellationToken cancellationToken) =>
+        {
+            var result = await previews.PreviewAsync(request.Url, cancellationToken);
+
+            if (result.Preview is not null) return Results.Ok(result.Preview);
+            return result.IsInvalidLink
+                ? Results.BadRequest(result.Error)
+                : Results.UnprocessableEntity(result.Error);
+        });
+
         // Add a job
         jobs.MapPost("", async (CreateJobRequest request, JobService service) =>
         {

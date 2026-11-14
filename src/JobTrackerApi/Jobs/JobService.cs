@@ -40,7 +40,7 @@ public class JobService(AppDbContext db)
     // Save a new job and its first history entry
     public async Task<Job> CreateAsync(CreateJobRequest request)
     {
-        var now = UtcNow();
+        var now = DbTime.UtcNow();
 
         var job = new Job(
             0,
@@ -77,7 +77,7 @@ public class JobService(AppDbContext db)
             return null;
         }
 
-        var now = UtcNow();
+        var now = DbTime.UtcNow();
         var oldStatus = existing.Status;
 
         // Remember the first time they responded
@@ -142,12 +142,5 @@ public class JobService(AppDbContext db)
                 .Max(c => c.ChangedAt) < cutoff)
             .OrderBy(j => j.Id)
             .ToListAsync();
-    }
-
-    // Current time, rounded to what Postgres stores (microseconds)
-    private static DateTime UtcNow()
-    {
-        var ticks = DateTime.UtcNow.Ticks;
-        return new DateTime(ticks - ticks % 10, DateTimeKind.Utc);
     }
 }

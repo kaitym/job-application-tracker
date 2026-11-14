@@ -5,6 +5,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 {
     public DbSet<Job> Jobs => Set<Job>();
     public DbSet<JobStatusChange> JobStatusChanges => Set<JobStatusChange>();
+    public DbSet<Interview> Interviews => Set<Interview>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -27,6 +28,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                   .WithMany()
                   .HasForeignKey(c => c.JobId)
                   .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Interviews, deleted along with their job
+        modelBuilder.Entity<Interview>(interview =>
+        {
+            interview.Property(i => i.Kind).HasMaxLength(100);
+            interview.HasOne<Job>()
+                     .WithMany()
+                     .HasForeignKey(i => i.JobId)
+                     .OnDelete(DeleteBehavior.Cascade);
+            interview.HasIndex(i => i.ScheduledAt);
         });
     }
 }

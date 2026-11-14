@@ -21,6 +21,44 @@ namespace JobTrackerApi.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Interview", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("JobId")
+                        .HasColumnType("integer")
+                        .HasColumnName("job_id");
+
+                    b.Property<string>("Kind")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text")
+                        .HasColumnName("notes");
+
+                    b.Property<DateTime>("ScheduledAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("scheduled_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_interviews");
+
+                    b.HasIndex("JobId")
+                        .HasDatabaseName("ix_interviews_job_id");
+
+                    b.HasIndex("ScheduledAt")
+                        .HasDatabaseName("ix_interviews_scheduled_at");
+
+                    b.ToTable("interviews", (string)null);
+                });
+
             modelBuilder.Entity("Job", b =>
                 {
                     b.Property<int>("Id")
@@ -120,6 +158,16 @@ namespace JobTrackerApi.Migrations
                         .HasDatabaseName("ix_job_status_changes_job_id");
 
                     b.ToTable("job_status_changes", (string)null);
+                });
+
+            modelBuilder.Entity("Interview", b =>
+                {
+                    b.HasOne("Job", null)
+                        .WithMany()
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_interviews_jobs_job_id");
                 });
 
             modelBuilder.Entity("JobStatusChange", b =>

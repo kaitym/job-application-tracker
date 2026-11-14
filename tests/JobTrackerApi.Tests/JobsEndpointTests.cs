@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,10 +13,7 @@ public class JobsEndpointTests : IClassFixture<ApiFactory>
     private readonly HttpClient _client;
 
     // Read and write enums as text, same as the API
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        Converters = { new JsonStringEnumConverter() }
-    };
+    private static readonly JsonSerializerOptions JsonOptions = TestJson.Options;
 
     public JobsEndpointTests(ApiFactory factory)
     {

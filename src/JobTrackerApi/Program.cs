@@ -11,8 +11,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default"))
            .UseSnakeCaseNamingConvention());
 
-// Job logic, one per request
+// App logic, one per request
 builder.Services.AddScoped<JobService>();
+builder.Services.AddScoped<InterviewService>();
 
 // Show enums as text in JSON
 builder.Services.ConfigureHttpJsonOptions(options =>
@@ -28,6 +29,7 @@ if (app.Environment.IsDevelopment())
 
 // Routes
 app.MapJobEndpoints();
+app.MapInterviewEndpoints();
 
 app.Run();
 

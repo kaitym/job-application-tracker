@@ -1,0 +1,16 @@
+# Local Postgres for development
+services:
+  db:
+    image: postgres:17
+    container_name: jobtracker-db
+    environment:
+      POSTGRES_USER: jobtracker
+      POSTGRES_PASSWORD: jobtracker_dev
+      POSTGRES_DB: jobtracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:

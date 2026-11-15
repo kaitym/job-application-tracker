@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Sun & Waves theme: whitewash walls, sun-faded signage, espresso */
+/* Grounds for Hire theme (Sun & Waves style): whitewash walls, sun-faded signage, espresso */
 @theme {
   --color-whitewash: #f7f3ea;
   --color-card: #fffdf8;

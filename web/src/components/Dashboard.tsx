@@ -124,7 +124,10 @@ export function Dashboard({ token, onLogout }: Props) {
           <div className="flex items-end gap-3">
             <SurfboardIcon className="hidden h-24 w-8 shrink-0 -rotate-6 text-golden sm:block" />
             <div className="flex flex-col gap-1">
-              <h1 className="font-display text-5xl leading-[0.9] text-sun sm:text-6xl">SUN &amp; WAVES</h1>
+              <h1 className="font-display text-5xl leading-[0.9] text-sun sm:text-6xl">
+                GROUNDS
+                <br /> FOR HIRE
+              </h1>
               <span className="font-script text-2xl sm:text-3xl">coffee &amp; job hunt club</span>
               <WaveIcon className="mt-1 h-4 w-40 text-sun" />
             </div>

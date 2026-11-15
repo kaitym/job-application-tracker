@@ -1,6 +1,6 @@
-# Job Application Tracker
+# Grounds for Hire ☕
 
-**Every job application I'm tracking, in one place.**
+**My job application tracker, styled like a surf coffee shop.** Every application I'm tracking, in one place.
 
 I built this to track my own job search — companies, roles, statuses, links, and notes — instead of losing applications across spreadsheets and browser tabs. It's also how I'm learning C#/.NET, SQL, and testing for real. It's a REST API backed by Postgres plus a website styled like a San Clemente surf coffee shop — my hometown, and I do most of my applying from coffee shops, so it felt right ☕🌊
 

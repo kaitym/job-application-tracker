@@ -1,4 +1,4 @@
-# Sun & Waves (website)
+# Grounds for Hire (website)
 
 The coffee-shop front end for the job tracker: React + TypeScript + Tailwind, built with Vite.
 

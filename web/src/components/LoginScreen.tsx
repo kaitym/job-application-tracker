@@ -34,9 +34,9 @@ export function LoginScreen({ onLogin }: Props) {
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-8 px-6 py-12">
       <header className="flex flex-col gap-1">
         <h1 className="font-display text-6xl leading-[0.9] text-sun">
-          SUN &amp;
+          GROUNDS
           <br />
-          WAVES
+          FOR HIRE
         </h1>
         <span className="font-script text-3xl">coffee &amp; job hunt club</span>
         <WaveIcon className="mt-2 h-4 w-40 text-sun" />

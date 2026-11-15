@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Stats } from '../api/types'
+import { shopLevel } from '../lib/shop'
 import { ShackIcon } from './icons'
 
 type Props = {
@@ -22,7 +23,7 @@ export function LevelCard({ stats, onCollect }: Props) {
     setCollecting(false)
     if (result && result.collected > 0) {
       setCelebration(result)
-      window.setTimeout(() => setCelebration(null), 3200)
+      window.setTimeout(() => setCelebration(null), 3600)
     }
   }
 
@@ -31,7 +32,9 @@ export function LevelCard({ stats, onCollect }: Props) {
       <div className="flex items-center gap-5">
         <ShackIcon className={`h-14 w-14 shrink-0 text-golden ${celebration?.leveledUp ? 'level-bounce' : ''}`} />
         <div className="flex min-w-0 grow flex-col gap-2">
-          <span className="font-script text-3xl leading-none">Level {stats.level}</span>
+          <span className="font-script text-3xl leading-none">
+            Level {stats.level} · {shopLevel(stats.level).title}
+          </span>
           <div
             className="flex h-3 overflow-hidden rounded-full bg-espresso-soft"
             role="progressbar"
@@ -74,8 +77,9 @@ export function LevelCard({ stats, onCollect }: Props) {
           <div className="tip-pop flex flex-col items-center gap-1 text-center">
             <span className="font-display text-4xl text-golden">+{celebration.collected} XP</span>
             <span className="font-script text-3xl">
-              {celebration.leveledUp ? `Level up! Welcome to level ${stats.level}` : 'Tips collected!'}
+              {celebration.leveledUp ? `Level up! You unlocked the ${shopLevel(stats.level).title}` : 'Tips collected!'}
             </span>
+            {celebration.leveledUp && <span className="text-sm text-line">{shopLevel(stats.level).unlock}</span>}
           </div>
         </div>
       )}

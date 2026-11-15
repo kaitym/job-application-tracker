@@ -122,3 +122,35 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* Shop scene: the next unlock is a faint dashed outline */
+.shop-ghost {
+  opacity: 0.3;
+}
+
+.shop-ghost * {
+  stroke-dasharray: 4 4;
+  fill: transparent;
+}
+
+/* A newly unlocked piece pops in */
+@keyframes shop-pop {
+  0% { transform: scale(0.2); opacity: 0; }
+  60% { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+.shop-pop {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: shop-pop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* The neon sign glows */
+.neon {
+  filter: drop-shadow(0 0 3px #e9a65a) drop-shadow(0 0 6px #e9a65a);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shop-pop { animation: none; }
+}

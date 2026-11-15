@@ -9,6 +9,7 @@ import { JobCard } from './JobCard'
 import { JobFilters } from './JobFilters'
 import { JobFormDialog } from './JobFormDialog'
 import { LevelCard } from './LevelCard'
+import { ShopCard } from './ShopCard'
 import { StageGuide } from './StageGuide'
 import { StatTiles } from './StatTiles'
 import { Toast } from './Toast'
@@ -32,6 +33,7 @@ export function Dashboard({ token, onLogout }: Props) {
   const [stage, setStage] = useState<StageFilter>('all')
   const [sort, setSort] = useState<SortKey>('newest')
   const [toast, setToast] = useState<string | null>(null)
+  const [celebrateLevel, setCelebrateLevel] = useState<number | null>(null)
   const toastTimer = useRef<number | undefined>(undefined)
 
   const showToast = useCallback((message: string) => {
@@ -106,7 +108,12 @@ export function Dashboard({ token, onLogout }: Props) {
     try {
       const result = await collectXp(token)
       setStats(result.stats)
-      return { collected: result.collected, leveledUp: result.stats.level > result.previousLevel }
+      const leveledUp = result.stats.level > result.previousLevel
+      if (leveledUp) {
+        setCelebrateLevel(result.stats.level)
+        window.setTimeout(() => setCelebrateLevel(null), 4000)
+      }
+      return { collected: result.collected, leveledUp }
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) onLogout()
       return null
@@ -162,6 +169,7 @@ export function Dashboard({ token, onLogout }: Props) {
         {jobs && stats && (
           <>
             <LevelCard stats={stats} onCollect={handleCollect} />
+            <ShopCard stats={stats} celebrate={celebrateLevel} />
             <StatTiles stats={stats} />
             <StageGuide />
 

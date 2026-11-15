@@ -13,6 +13,12 @@ I built this to track my own job search — companies, roles, statuses, links, a
   <img alt="Status" src="https://img.shields.io/badge/status-in%20progress-yellow">
 </p>
 
+## What it looks like
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+*Opening the app to check my shop level, collect XP from the tip jar, and see my stats at a glance.*
+
 ## What it does
 
 | | |
@@ -29,6 +35,18 @@ I built this to track my own job search — companies, roles, statuses, links, a
 | **Stats + levels** | Response rate, counts per stage, and XP that I collect from the tip jar to level up my coffee shop ☕ |
 | **Private by default** | Only I can see or change jobs (login with a signed token). `/stats` is public — just numbers, no company names. |
 | **Survives restarts** | Everything is stored in Postgres, not in memory. |
+
+![Job list](docs/screenshots/job-list.png)
+
+*Scrolling my job list — searching, filtering by stage, and seeing every application on one board.*
+
+![One job, opened up](docs/screenshots/job-detail.png)
+
+*Opening a job to read the description, move it to the next stage, or mark it as responded or rejected.*
+
+![Adding a job](docs/screenshots/add-job.png)
+
+*Adding a job — pasting the posting link so the form fills itself in, then checking the details before I save it.*
 
 ### Endpoints
 
@@ -68,6 +86,10 @@ XP comes from real progress, and each job only earns each step once (no farming 
 | Rejection | +5 (I still showed up) |
 
 Earned XP waits in the tip jar until I hit **Collect tips** — that's when the level goes up. Levels start at 100 XP and go up to level 10 at 5,000 XP. Each level will unlock something new in the coffee shop.
+
+![How the shop works](docs/screenshots/how-it-works.png)
+
+*How each stage works — what it means and how much XP moving forward earns.*
 
 ## Tech stack
 

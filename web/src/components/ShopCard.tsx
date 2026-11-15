@@ -1,6 +1,7 @@
 import type { Stats } from '../api/types'
 import { nextShopLevel, shopLevel, shopLevels } from '../lib/shop'
-import { ShopScene } from './ShopScene'
+// Shop picture is off until I design a better one
+// import { ShopScene } from './ShopScene'
 import { ConeIcon } from './icons'
 
 type Props = {
@@ -9,14 +10,14 @@ type Props = {
 }
 
 // Dev only: ?shop=7 previews the shop at another level
-function previewLevel(): number | null {
-  if (!import.meta.env.DEV) return null
-  const value = Number(new URLSearchParams(window.location.search).get('shop'))
-  return value >= 1 && value <= shopLevels.length ? value : null
-}
+// function previewLevel(): number | null {
+//   if (!import.meta.env.DEV) return null
+//   const value = Number(new URLSearchParams(window.location.search).get('shop'))
+//   return value >= 1 && value <= shopLevels.length ? value : null
+// }
 
-// The shop picture, what's next, and every upgrade on the way
-export function ShopCard({ stats, celebrate }: Props) {
+// What's next and every upgrade on the way (the shop picture is off for now)
+export function ShopCard({ stats }: Props) {
   const current = shopLevel(stats.level)
   const next = nextShopLevel(stats.level)
   const toGo = stats.nextLevelXp ? Math.max(0, stats.nextLevelXp - stats.collectedXp) : 0
@@ -44,9 +45,11 @@ export function ShopCard({ stats, celebrate }: Props) {
         </span>
       </div>
 
+      {/* Shop picture is off until I design a better one
       <div className="bg-whitewash px-2 pt-2">
         <ShopScene level={previewLevel() ?? stats.level} celebrate={celebrate} />
       </div>
+      */}
 
       <div className="flex flex-col gap-4 px-5 pb-5 sm:px-6">
         {next ? (

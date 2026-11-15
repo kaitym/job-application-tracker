@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { stageGuide } from '../lib/stages'
+import { BellIcon, StageIcon } from './icons'
 
 const KEY = 'sun-waves-guide-open'
 
@@ -57,8 +58,11 @@ export function StageGuide() {
           </p>
           <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
             {stageGuide.map((stage) => (
-              <div key={stage.name} className="flex items-baseline justify-between gap-3 border-b border-dashed border-line pb-2">
-                <div className="flex flex-col">
+              <div key={stage.name} className="flex items-center justify-between gap-3 border-b border-dashed border-line pb-2">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sand text-espresso">
+                  {stage.status ? <StageIcon status={stage.status} className="h-5 w-5" /> : <BellIcon className="h-5 w-5" />}
+                </span>
+                <div className="flex grow flex-col">
                   <dt className="font-bold">{stage.name}</dt>
                   <dd className="text-sm text-muted">{stage.meaning}</dd>
                 </div>

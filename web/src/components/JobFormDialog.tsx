@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { ApiError, createJob, previewLink } from '../api/client'
-import type { JobStatus, NewJob } from '../api/types'
+import { ApiError, createJob, previewLink, updateJob } from '../api/client'
+import type { Job, JobStatus, NewJob } from '../api/types'
 import { todayIso } from '../lib/format'
 import { stageLabels, statusOptions } from '../lib/stages'
 
 type Props = {
   token: string
-  open: boolean
+  editing: Job | null // null = adding a new job
   onClose: () => void
-  onAdded: () => void
+  onSaved: (job: Job, wasNew: boolean) => void
   onUnauthorized: () => void
 }
 
@@ -38,37 +38,43 @@ const emptyForm = (): FormState => ({
   needsAction: false,
 })
 
+// Fill the form from a job being edited
+const formFromJob = (job: Job): FormState => ({
+  company: job.company,
+  role: job.role,
+  location: job.location,
+  status: job.status,
+  dateApplied: job.dateApplied ?? todayIso(),
+  deadline: job.deadline ?? '',
+  link: job.link ?? '',
+  description: job.description ?? '',
+  notes: job.notes ?? '',
+  needsAction: job.needsAction,
+})
+
 const inputClass =
   'w-full rounded-xl border border-line bg-whitewash px-4 py-3 text-base outline-none focus:border-sun focus:ring-2 focus:ring-sun/30'
 const labelClass = 'flex flex-col gap-1.5 text-sm font-medium'
 
-// Add a job by hand, or paste a posting link to fill it in
-export function AddJobDialog({ token, open, onClose, onAdded, onUnauthorized }: Props) {
+// Add or edit a job; paste a posting link to fill it in
+// Mounted only while open, so each open starts fresh
+export function JobFormDialog({ token, editing, onClose, onSaved, onUnauthorized }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null)
-  const [form, setForm] = useState<FormState>(emptyForm)
+  const [form, setForm] = useState<FormState>(() => (editing ? formFromJob(editing) : emptyForm()))
   const [pasteUrl, setPasteUrl] = useState('')
   const [reading, setReading] = useState(false)
   const [readMessage, setReadMessage] = useState<{ ok: boolean; text: string } | null>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Open and close the native dialog with the prop
+  // Show the native dialog as soon as it mounts
   useEffect(() => {
     const dialog = dialogRef.current
-    if (!dialog) return
-    if (open && !dialog.open) dialog.showModal()
-    if (!open && dialog.open) dialog.close()
-  }, [open])
+    if (dialog && !dialog.open) dialog.showModal()
+  }, [])
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }))
-  }
-
-  function reset() {
-    setForm(emptyForm())
-    setPasteUrl('')
-    setReadMessage(null)
-    setError(null)
   }
 
   async function handleReadLink() {
@@ -122,9 +128,8 @@ export function AddJobDialog({ token, open, onClose, onAdded, onUnauthorized }: 
     }
 
     try {
-      await createJob(token, job)
-      reset()
-      onAdded()
+      const saved = editing ? await updateJob(token, editing.id, job) : await createJob(token, job)
+      onSaved(saved, !editing)
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) return onUnauthorized()
       setError('Couldn’t save that job. Check the company and role, then try again.')
@@ -137,14 +142,14 @@ export function AddJobDialog({ token, open, onClose, onAdded, onUnauthorized }: 
     <dialog
       ref={dialogRef}
       onClose={onClose}
-      aria-labelledby="add-job-title"
+      aria-labelledby="job-form-title"
       className="m-auto w-[min(100%-2rem,40rem)] rounded-3xl border border-line bg-card p-0 text-espresso backdrop:bg-espresso/50"
     >
       <form onSubmit={handleSubmit} className="flex max-h-[85vh] flex-col gap-5 overflow-y-auto p-6 sm:p-8">
         <div className="flex items-start justify-between gap-4">
           <div className="flex flex-col gap-1">
-            <h2 id="add-job-title" className="font-display text-3xl">NEW ORDER</h2>
-            <p className="font-script text-2xl text-sun">fresh beans on the shelf</p>
+            <h2 id="job-form-title" className="font-display text-3xl">{editing ? 'EDIT ORDER' : 'NEW ORDER'}</h2>
+            <p className="font-script text-2xl text-sun">{editing ? `tweaking ${editing.company}` : 'fresh beans on the shelf'}</p>
           </div>
           <button
             type="button"
@@ -160,7 +165,7 @@ export function AddJobDialog({ token, open, onClose, onAdded, onUnauthorized }: 
 
         <section className="flex flex-col gap-2 rounded-2xl bg-sand p-4">
           <label htmlFor="paste-link" className="font-sign text-xs font-bold uppercase tracking-[0.2em]">
-            Paste the posting link
+            {editing ? 'Re-read the posting link' : 'Paste the posting link'}
           </label>
           <div className="flex flex-col gap-2 sm:flex-row">
             <input
@@ -272,7 +277,7 @@ export function AddJobDialog({ token, open, onClose, onAdded, onUnauthorized }: 
             disabled={saving}
             className="rounded-full bg-sun px-6 py-3 font-sign text-xs font-bold uppercase tracking-[0.2em] text-card transition hover:bg-sun-dark disabled:opacity-60"
           >
-            {saving ? 'Saving…' : 'Add to the menu'}
+            {saving ? 'Saving…' : editing ? 'Save changes' : 'Add to the menu'}
           </button>
         </div>
       </form>

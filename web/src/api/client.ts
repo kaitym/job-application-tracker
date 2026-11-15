@@ -56,3 +56,7 @@ export function previewLink(token: string, url: string) {
 export function collectXp(token: string) {
   return request<CollectResponse>('/stats/collect', token, { method: 'POST' })
 }
+
+export function updateJob(token: string, id: number, job: NewJob) {
+  return request<Job>(`/jobs/${id}`, token, { method: 'PUT', body: JSON.stringify(job) })
+}

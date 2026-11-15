@@ -85,3 +85,40 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .tip-wiggle, .tip-pop, .level-bounce { animation: none; }
 }
+
+/* The bell rings now and then on "Order up" jobs */
+@keyframes bell-ring {
+  0%, 85%, 100% { transform: rotate(0); }
+  88% { transform: rotate(-14deg); }
+  91% { transform: rotate(12deg); }
+  94% { transform: rotate(-8deg); }
+  97% { transform: rotate(4deg); }
+}
+
+.bell-ring {
+  transform-origin: 50% 20%;
+  animation: bell-ring 4s ease-in-out infinite;
+}
+
+/* Toast slides up */
+@keyframes toast-in {
+  from { transform: translateY(16px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.toast-in {
+  animation: toast-in 0.25s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bell-ring, .toast-in { animation: none; }
+}
+
+/* Swipeable rows without a visible scrollbar */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

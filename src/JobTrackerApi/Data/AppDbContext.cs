@@ -7,6 +7,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<JobStatusChange> JobStatusChanges => Set<JobStatusChange>();
     public DbSet<Interview> Interviews => Set<Interview>();
     public DbSet<ShopProgress> ShopProgress => Set<ShopProgress>();
+    public DbSet<WatchedCompany> WatchedCompanies => Set<WatchedCompany>();
+    public DbSet<JobRec> JobRecs => Set<JobRec>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -41,6 +43,33 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                      .HasForeignKey(i => i.JobId)
                      .OnDelete(DeleteBehavior.Cascade);
             interview.HasIndex(i => i.ScheduledAt);
+        });
+
+        // Bulletin board watchlist
+        modelBuilder.Entity<WatchedCompany>(company =>
+        {
+            company.Property(c => c.Name).HasMaxLength(100);
+            company.Property(c => c.Board).HasConversion<string>().HasMaxLength(20);
+            company.Property(c => c.Slug).HasMaxLength(80);
+            company.Property(c => c.LastError).HasMaxLength(300);
+            company.HasIndex(c => new { c.Board, c.Slug }).IsUnique();
+        });
+
+        // Recs found on the boards, deleted along with their company
+        modelBuilder.Entity<JobRec>(rec =>
+        {
+            rec.Property(r => r.ExternalId).HasMaxLength(100);
+            rec.Property(r => r.Company).HasMaxLength(100);
+            rec.Property(r => r.Title).HasMaxLength(300);
+            rec.Property(r => r.Location).HasMaxLength(300);
+            rec.Property(r => r.Url).HasMaxLength(500);
+            rec.Property(r => r.State).HasConversion<string>().HasMaxLength(10);
+            rec.HasOne<WatchedCompany>()
+               .WithMany()
+               .HasForeignKey(r => r.WatchedCompanyId)
+               .OnDelete(DeleteBehavior.Cascade);
+            rec.HasIndex(r => new { r.WatchedCompanyId, r.ExternalId }).IsUnique();
+            rec.HasIndex(r => r.State);
         });
 
         // One row: how much XP has been collected

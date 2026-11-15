@@ -128,6 +128,84 @@ namespace JobTrackerApi.Migrations
                     b.ToTable("jobs", (string)null);
                 });
 
+            modelBuilder.Entity("JobRec", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Company")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("company");
+
+                    b.Property<string>("ExternalId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("external_id");
+
+                    b.Property<DateTime>("FoundAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("found_at");
+
+                    b.Property<int?>("JobId")
+                        .HasColumnType("integer")
+                        .HasColumnName("job_id");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("location");
+
+                    b.Property<DateTime?>("PostedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("posted_at");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer")
+                        .HasColumnName("priority");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("state");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("title");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("url");
+
+                    b.Property<int>("WatchedCompanyId")
+                        .HasColumnType("integer")
+                        .HasColumnName("watched_company_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_job_recs");
+
+                    b.HasIndex("State")
+                        .HasDatabaseName("ix_job_recs_state");
+
+                    b.HasIndex("WatchedCompanyId", "ExternalId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_job_recs_watched_company_id_external_id");
+
+                    b.ToTable("job_recs", (string)null);
+                });
+
             modelBuilder.Entity("JobStatusChange", b =>
                 {
                     b.Property<int>("Id")
@@ -181,6 +259,56 @@ namespace JobTrackerApi.Migrations
                     b.ToTable("shop_progress", (string)null);
                 });
 
+            modelBuilder.Entity("WatchedCompany", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Board")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("board");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("LastCheckedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_checked_at");
+
+                    b.Property<string>("LastError")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("last_error");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("slug");
+
+                    b.HasKey("Id")
+                        .HasName("pk_watched_companies");
+
+                    b.HasIndex("Board", "Slug")
+                        .IsUnique()
+                        .HasDatabaseName("ix_watched_companies_board_slug");
+
+                    b.ToTable("watched_companies", (string)null);
+                });
+
             modelBuilder.Entity("Interview", b =>
                 {
                     b.HasOne("Job", null)
@@ -189,6 +317,16 @@ namespace JobTrackerApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_interviews_jobs_job_id");
+                });
+
+            modelBuilder.Entity("JobRec", b =>
+                {
+                    b.HasOne("WatchedCompany", null)
+                        .WithMany()
+                        .HasForeignKey("WatchedCompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_job_recs_watched_companies_watched_company_id");
                 });
 
             modelBuilder.Entity("JobStatusChange", b =>

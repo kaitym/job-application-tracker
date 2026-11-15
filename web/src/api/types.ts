@@ -64,3 +64,44 @@ export type NewJob = {
   needsAction: boolean
   description: string | null
 }
+
+export type JobBoard = 'Greenhouse' | 'Lever' | 'Ashby' | 'SmartRecruiters'
+
+export type WatchedCompany = {
+  id: number
+  name: string
+  board: JobBoard
+  slug: string
+  createdAt: string
+  lastCheckedAt: string | null
+  lastError: string | null
+}
+
+export type JobRec = {
+  id: number
+  watchedCompanyId: number
+  externalId: string
+  company: string
+  title: string
+  location: string
+  url: string
+  postedAt: string | null
+  foundAt: string
+  priority: number
+  state: 'New' | 'Added' | 'Tossed'
+  jobId: number | null
+}
+
+export type RecBoard = {
+  recs: JobRec[]
+  newCount: number
+  lastRefreshedAt: string | null
+  companies: WatchedCompany[]
+}
+
+export type RefreshResult = {
+  ran: boolean
+  checked: number
+  added: number
+  errors: string[]
+}

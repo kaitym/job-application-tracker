@@ -1,4 +1,4 @@
-import type { CollectResponse, Job, JobLinkPreview, LoginResponse, NewJob, Stats } from './types'
+import type { CollectResponse, Job, JobLinkPreview, LoginResponse, NewJob, RecBoard, RefreshResult, Stats, WatchedCompany } from './types'
 
 // Dev: Vite proxies /api to the C# API. Prod: set VITE_API_URL.
 const API_URL = import.meta.env.VITE_API_URL ?? '/api'
@@ -59,4 +59,28 @@ export function collectXp(token: string) {
 
 export function updateJob(token: string, id: number, job: NewJob) {
   return request<Job>(`/jobs/${id}`, token, { method: 'PUT', body: JSON.stringify(job) })
+}
+
+export function getRecs(token: string) {
+  return request<RecBoard>('/recs', token)
+}
+
+export function refreshRecs(token: string, onlyIfStale: boolean) {
+  return request<RefreshResult>(`/recs/refresh?onlyIfStale=${onlyIfStale}`, token, { method: 'POST' })
+}
+
+export function addRecToMenu(token: string, id: number) {
+  return request<Job>(`/recs/${id}/add`, token, { method: 'POST' })
+}
+
+export function tossRec(token: string, id: number) {
+  return request<void>(`/recs/${id}/toss`, token, { method: 'POST' })
+}
+
+export function addWatchedCompany(token: string, url: string, name: string | null) {
+  return request<WatchedCompany>('/recs/companies', token, { method: 'POST', body: JSON.stringify({ url, name }) })
+}
+
+export function removeWatchedCompany(token: string, id: number) {
+  return request<void>(`/recs/companies/${id}`, token, { method: 'DELETE' })
 }

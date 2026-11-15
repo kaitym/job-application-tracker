@@ -31,6 +31,7 @@ I built this to track my own job search — companies, roles, statuses, links, a
 | **Gone cold** | Finds applications with no news in 30+ days, so I know what's probably a ghost. |
 | **Interviews** | Schedule interviews per job and see everything coming up across all jobs. |
 | **Search + filters** | Filter by status or "needs action", and search company, role, or location. |
+| **Bulletin board** | A cork board that pins new-grad software roles from companies I watch (Greenhouse, Lever, Ashby, SmartRecruiters), Orange County first, then San Diego, then SF/remote. Skips jobs I've already applied to; one click adds a pin to my list. |
 | **Paste a link** | Paste a job posting link and it fills in the company, role, location, and description (from the page's built-in job data). |
 | **Stats + levels** | Response rate, counts per stage, and XP that I collect from the tip jar to level up my coffee shop ☕ |
 | **Private by default** | Only I can see or change jobs (login with a signed token). `/stats` is public — just numbers, no company names. |
@@ -67,6 +68,12 @@ I built this to track my own job search — companies, roles, statuses, links, a
 | `DELETE` | `/jobs/{id}/interviews/{interviewId}` 🔒 | Cancel an interview |
 | `GET` | `/interviews/upcoming` 🔒 | Interviews in the next `?days=14`, with company and role |
 | `POST` | `/jobs/preview-link` 🔒 | Read a posting link and return what it found (blocks private/internal addresses) |
+| `GET` | `/recs` 🔒 | Bulletin board pins and the watchlist |
+| `POST` | `/recs/refresh` 🔒 | Check every watched job board (`?onlyIfStale=true` skips it if checked in the last 12 hours) |
+| `POST` | `/recs/{id}/add` 🔒 | Add a pin to my list as a Beans picked job |
+| `POST` | `/recs/{id}/toss` 🔒 | Take a pin off the board |
+| `POST` | `/recs/companies` 🔒 | Watch a company (paste its careers page link) |
+| `DELETE` | `/recs/companies/{id}` 🔒 | Stop watching a company |
 | `GET` | `/stats` | Counts per stage, response rate, XP, and shop level (public) |
 | `POST` | `/stats/collect` 🔒 | Collect earned XP from the tip jar |
 
@@ -164,6 +171,10 @@ JobTrackerApi/
       JobPageParser.cs          reads job details out of a posting page
       LinkPreviewService.cs     fetches the page (size and time limits)
       SafeAddresses.cs          blocks private addresses (SSRF protection)
+    Recs/
+      JobBoardFeeds.cs          reads Greenhouse, Lever, Ashby, SmartRecruiters feeds
+      RecMatcher.cs             early-career software roles, ranked by location
+      RecService.cs             refresh, pin, add to list, toss, watchlist
     Data/
       AppDbContext.cs           database tables and column rules
       DbTime.cs                 UTC timestamps Postgres can store exactly
@@ -243,10 +254,10 @@ Then open http://localhost:5173 and log in. To load my real applications into a 
 dotnet test
 ```
 
-85 tests: integration tests for every endpoint (the happy path, the "doesn't exist" case `404`, validation `400`, and login `401`/`429`), plus unit tests for the leveling rules, the posting-page reader, and the private-address block list. Docker needs to be running, since each test run starts its own Postgres container with Testcontainers. GitHub Actions runs the same tests on every push — that's the CI badge at the top.
+139 tests: integration tests for every endpoint (the happy path, the "doesn't exist" case `404`, validation `400`, and login `401`/`429`), plus unit tests for the leveling rules, the posting-page reader, the private-address block list, job-board feed parsing, and rec matching. Bulletin board tests use a fake job board, so they never hit the internet. Docker needs to be running, since each test run starts its own Postgres container with Testcontainers. GitHub Actions runs the same tests on every push — that's the CI badge at the top.
 
 ## Status
 
-In progress. What's built: a full CRUD API split into endpoints and a service layer, status history, interviews, search and filters, gone-cold detection, stats with XP and levels, owner-only login with JWT tokens, Postgres storage with EF Core migrations, Docker Compose for local dev, integration tests against real Postgres, and GitHub Actions CI. The website has a login screen and a dashboard: shop level with a tip jar to collect XP, a guide to the stages, stats, job cards, and an add-job form that can fill itself in from a posting link. What's next: editing jobs from the website, filters, custom coffee-shop icons, and a free deploy.
+In progress. What's built: a full CRUD API split into endpoints and a service layer, status history, interviews, search and filters, gone-cold detection, stats with XP and levels, owner-only login with JWT tokens, Postgres storage with EF Core migrations, Docker Compose for local dev, integration tests against real Postgres, and GitHub Actions CI. The website has a login screen and a dashboard: shop level with a tip jar to collect XP, a guide to the stages, stats, job cards, and an add-job form that can fill itself in from a posting link. The shop grows a new piece every level, and a bulletin board pins fresh job recs. What's next: custom coffee-shop icons and a free deploy (with a scheduled job to check the boards twice a day).
 
 Known limitation: it's built for one person (me), so there's a single owner login rather than user accounts. That's on purpose — it's my tracker.

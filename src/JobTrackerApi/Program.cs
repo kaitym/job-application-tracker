@@ -35,6 +35,15 @@ builder.Services.AddHttpClient(LinkPreviewService.ClientName, client =>
     .ConfigurePrimaryHttpMessageHandler(SafeAddresses.CreateHandler);
 builder.Services.AddScoped<LinkPreviewService>();
 
+// Bulletin board: public job board feeds
+builder.Services.AddHttpClient(JobBoardFetcher.ClientName, client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(15);
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("GroundsForHire/1.0 (personal job tracker)");
+});
+builder.Services.AddScoped<IJobBoardFetcher, JobBoardFetcher>();
+builder.Services.AddScoped<RecService>();
+
 // Show enums as text in JSON
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
@@ -57,6 +66,7 @@ app.MapAuthEndpoints();
 app.MapJobEndpoints();
 app.MapInterviewEndpoints();
 app.MapStatsEndpoints();
+app.MapRecEndpoints();
 
 app.Run();
 

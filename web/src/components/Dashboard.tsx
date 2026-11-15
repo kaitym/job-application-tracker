@@ -5,6 +5,7 @@ import { toRequest } from '../lib/format'
 import { countByFilter, filterAndSort, type SortKey, type StageFilter } from '../lib/jobFilters'
 import { Awning } from './Awning'
 import { BrewingLoader } from './BrewingLoader'
+import { BulletinBoard } from './BulletinBoard'
 import { JobCard } from './JobCard'
 import { JobFilters } from './JobFilters'
 import { JobFormDialog } from './JobFormDialog'
@@ -95,8 +96,8 @@ export function Dashboard({ token, onLogout }: Props) {
     }
   }
 
-  async function handleSaved(saved: Job, wasNew: boolean) {
-    setForm({ mode: 'closed' })
+  async function handleSaved(saved: Job, wasNew: boolean, closeForm = true) {
+    if (closeForm) setForm({ mode: 'closed' })
     setJobs((current) => {
       if (!current) return [saved]
       return wasNew ? [saved, ...current] : current.map((j) => (j.id === saved.id ? saved : j))
@@ -171,6 +172,12 @@ export function Dashboard({ token, onLogout }: Props) {
             <LevelCard stats={stats} onCollect={handleCollect} />
             <ShopCard stats={stats} celebrate={celebrateLevel} />
             <StatTiles stats={stats} />
+            <BulletinBoard
+              token={token}
+              onAddedJob={(job) => void handleSaved(job, true, false)}
+              onUnauthorized={onLogout}
+              onToast={showToast}
+            />
             <StageGuide />
 
             <section aria-labelledby="menu-heading" className="flex flex-col gap-4">

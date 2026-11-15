@@ -197,3 +197,14 @@ export function ChevronIcon({ className }: IconProps) {
     </Line>
   )
 }
+
+// A traffic cone (under construction)
+export function ConeIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 40 40" aria-hidden="true">
+      <path d="M14 33l4.5-24h3L26 33z" fill="#a8391f" stroke="#2b211b" strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M16.2 22h7.6M17.4 15h5.2" stroke="#fffdf8" strokeWidth="3" />
+      <rect x="9" y="32" width="22" height="4" rx="1.2" fill="#a8391f" stroke="#2b211b" strokeWidth="1.8" />
+    </svg>
+  )
+}
